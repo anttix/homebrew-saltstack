@@ -2,8 +2,8 @@ require 'formula'
 
 class Saltstack < Formula
   homepage 'http://saltstack.org/'
-  url 'https://github.com/downloads/saltstack/salt/salt-0.10.5.tar.gz'
-  sha1 '42796c7299e0000c250af2b3164fa77ef4f5e460'
+  url 'https://github.com/downloads/saltstack/salt/salt-0.10.4.tar.gz'
+  sha1 '1d5df8a974123f2af1cc4e2f0f9cdd58648a6b3a'
 
   option 'with-deps', "Install python dependencies automatically"
 
@@ -21,7 +21,9 @@ class Saltstack < Formula
   end
 
   def patches
-    { # Change paths to match Homebrew standards
+    { # Fix bugs in homebrew salt module
+      :p1 => "https://github.com/saltstack/salt/commit/ae7365c6a66da89d71e73cc2c41b6814b616e7c0.diff",
+      # Change paths to match Homebrew standards
       :p0 => DATA
     }
   end
@@ -224,3 +226,15 @@ __END__
          self.opts = salt.config.minion_config(c_path)
          self.sminion = salt.minion.SMinion(self.opts)
  
+--- salt/cli/key.py.orig        2012-10-23 17:51:35.000000000 -0700
++++ salt/cli/key.py     2012-12-03 16:38:02.000000000 -0800
+@@ -66,7 +66,7 @@
+                 'gen_keys': '',
+                 'gen_keys_dir': '.',
+                 'keysize': 2048,
+-                'conf_file': '/etc/salt/master',
++                'conf_file': 'HOMEBREW_PREFIX/etc/salt/master',
+                 'raw_out': False,
+                 'yaml_out': False,
+                 'json_out': False,
+
