@@ -21,23 +21,28 @@ class Saltstack < Formula
   end
 
   def install
-    system "python", "setup.py", "install"
+    # In order to install into the Cellar, the dir must exist and be in the PYTHONPATH.
+    temp_site_packages = lib/which_python/'site-packages'
+    mkdir_p temp_site_packages
+    ENV['PYTHONPATH'] = temp_site_packages
+
+    args = [
+      "--no-user-cfg",
+      "--verbose",
+      "install",
+      "--force",
+      "--install-scripts=#{bin}",
+      "--install-lib=#{temp_site_packages}",
+      "--install-data=#{share}",
+      "--install-headers=#{include}",
+    ]
+
+    system "python", "-s", "setup.py", *args
   end
 
-  def uninstall  # currently nonfunctional
-    super
-    system "pip", "uninstall", "salt"
-  end
-
-  def scripts_folder
-    HOMEBREW_PREFIX/"share/python"
-  end
-
-  def caveats
-    <<-EOS.undent
-      To run the `salt` command, you'll need to add Python's script directory to your PATH:
-        #{scripts_folder}
-    EOS
+  def which_python
+    # Update this once we have something like [this](https://github.com/mxcl/homebrew/issues/11204)
+    "python" + `python -c 'import sys;print(sys.version[:3])'`.strip
   end
 
   def test
